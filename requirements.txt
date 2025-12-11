@@ -1,0 +1,10 @@
+pandas
+geopandas
+censusdata
+requests
+scikit-learn
+networkx
+folium
+mapclassify
+matplotlib
+
