@@ -19,15 +19,15 @@ Counts come from the linked CSV rows and unique community labels. Modularity val
 
 ## Reproduce
 
-Run from the repository root with [uv](https://docs.astral.sh/uv/). The committed tables and shapefile suffice; no API key, GPU, model download, or paid service is needed. Use a local CPU machine; the smoke test runs on the owner's Ryzen AI 5 PRO 340 laptop within the project runner's memory cap. Compute cost is $0; no runtime benchmark is claimed.
+Run from the repository root with [uv](https://docs.astral.sh/uv/). The committed tables and shapefile suffice; no API key, GPU, model download, or paid service is needed, and a laptop CPU is enough. No runtime benchmark is claimed.
 
 ```sh
 nice -n 19 uv sync --locked
-/home/alp/Projects/profile-program/bin/pp-run heavy uv run --locked python -m unittest discover -s tests -v
-/home/alp/Projects/profile-program/bin/pp-run heavy uv run --locked python main.py
+nice -n 19 uv run --locked python -m unittest discover -s tests -v
+nice -n 19 uv run --locked python main.py
 ```
 
-The `pp-run` path is specific to the owner's shared workstation; elsewhere run the Python commands under `nice -n 19`. The test runs both years in a temporary output directory. The final command overwrites the normal results and comparison/network images under `output/`; preserve historical files before running it if needed. Optional official Chicago community-area outlines are not bundled. `download_shp.py` downloads them to the path the loader recognizes; outlines are only a plotting overlay.
+The test runs both years in a temporary output directory. The final command overwrites the normal results and comparison/network images under `output/`; preserve historical files before running it if needed. Optional official Chicago community-area outlines are not bundled. `download_shp.py` downloads them to the path the loader recognizes; outlines are only a plotting overlay.
 
 ## Limitations
 
