@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.venv/
+logs/
+.pytest_cache/
+data/cca_shp/
