@@ -1,0 +1,21 @@
+[project]
+name = "southside-analysis"
+version = "0.1.0"
+description = "Exploratory Census block-group community detection around Chicago's South Side"
+requires-python = ">=3.12"
+dependencies = [
+    "geopandas",
+    "igraph",
+    "leidenalg",
+    "matplotlib",
+    "networkx",
+    "numpy",
+    "pandas",
+    "requests",
+    "scikit-learn",
+    "scipy",
+    "shapely",
+]
+
+[tool.uv]
+package = false
