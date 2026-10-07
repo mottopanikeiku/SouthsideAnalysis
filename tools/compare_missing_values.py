@@ -4,6 +4,8 @@ Run from the repository root: python -m tools.compare_missing_values
 The old outputs are retained separately under output/historical/.
 """
 import json
+import hashlib
+import platform
 from importlib.metadata import version
 from pathlib import Path
 
@@ -52,7 +54,7 @@ def main():
     destination = Path('results/before_after')
     destination.mkdir(parents=True, exist_ok=True)
     report = {
-        'comparison': 'Same input rows, dependencies, feature settings and seeds; only negative ACS estimate handling changes.',
+        'comparison': 'Same input rows, dependencies, feature settings and seeds; only missing-value handling changes.',
         'seed': RANDOM_SEED,
         'knn_k': KNN_K,
         'pca_variance': PCA_VARIANCE,
@@ -65,6 +67,17 @@ def main():
             'Zero denominators retain the original zero-rate convention to isolate the missing-code correction.',
         ],
         'versions': {package: version(package) for package in ['numpy', 'pandas', 'scikit-learn', 'networkx', 'igraph', 'leidenalg', 'geopandas']},
+        'python_version': platform.python_version(),
+        'input_sha256': {
+            str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in [
+                *(Path('data') / f'acs_{year}_cook_blockgroups.csv' for year in ACS_YEARS),
+                *sorted(Path('data/tl_2023_17_bg').glob('*.shp')),
+                *sorted(Path('data/tl_2023_17_bg').glob('*.dbf')),
+                *sorted(Path('data/tl_2023_17_bg').glob('*.shx')),
+                *sorted(Path('data/tl_2023_17_bg').glob('*.prj')),
+            ]
+        },
         'years': {},
     }
     map_data = {'years': {}}
@@ -93,6 +106,9 @@ def main():
             'negative_codes': sorted(float(value) for value in np.unique(raw[estimate_columns].to_numpy()[negative.to_numpy()])),
             'edges_before': before_graph.number_of_edges(),
             'edges_after': after_graph.number_of_edges(),
+            'existing_missing_estimates_by_column': {
+                column: int(count) for column, count in raw[estimate_columns].isna().sum().items() if count
+            },
             'algorithms': {},
         }
         for algorithm, before_modularity in [('louvain', louvain_mod), ('leiden', leiden_mod)]:
