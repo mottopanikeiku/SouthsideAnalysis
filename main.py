@@ -47,6 +47,7 @@ def run_pipeline(year: int):
     
     Visualizer.plot_community_maps(gdf, year, mod_louvain, mod_leiden, ca_gdf=ca_gdf)
     Visualizer.plot_network_graph(G, leiden_map, year, algorithm="Leiden", pos=pos)
+    return gdf, G, {"louvain": mod_louvain, "leiden": mod_leiden}
 
 def main():
     for year in ACS_YEARS:
