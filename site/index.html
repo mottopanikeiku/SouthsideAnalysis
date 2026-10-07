@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore corrected 2019 and 2022 ACS demographic partitions of Chicago South Side block groups.">
+  <title>South Side demographic groups</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">SouthsideAnalysis · ACS five-year estimates</p>
+      <h1>South Side demographic groups</h1>
+      <p class="intro">I grouped Census block groups by demographic similarity, not by their location. Explore the corrected 2019 and 2022 partitions below.</p>
+    </div>
+    <a class="source-link" href="https://github.com/mottopanikeiku/SouthsideAnalysis">Code and results ↗</a>
+  </header>
+
+  <main>
+    <aside class="caution" aria-label="Interpretation limits">
+      <strong>These groups are not official neighborhoods.</strong>
+      Colors and group IDs are local to each year and algorithm; matching colors do not mean matching groups.
+      Both ACS releases are joined to newer, 2023 TIGER boundaries by GEOID without a geographic crosswalk, so this is not a controlled comparison over time.
+    </aside>
+
+    <section class="controls" aria-label="Choose a partition">
+      <label for="year">ACS release
+        <select id="year" disabled>
+          <option value="2019">2019</option>
+          <option value="2022">2022</option>
+        </select>
+      </label>
+      <label for="algorithm">Algorithm
+        <select id="algorithm" disabled>
+          <option value="louvain">Louvain</option>
+          <option value="leiden">Leiden</option>
+        </select>
+      </label>
+      <p class="partition-summary" id="partition-summary" role="status" aria-live="polite">Loading local map data…</p>
+    </section>
+
+    <div class="workspace">
+      <section class="map-panel" aria-label="Interactive block-group map">
+        <div class="map-toolbar" aria-label="Map navigation">
+          <div class="button-group">
+            <button id="zoom-in" type="button" aria-label="Zoom in" disabled>+</button>
+            <button id="zoom-out" type="button" aria-label="Zoom out" disabled>−</button>
+            <button id="reset-view" type="button" disabled>Reset view</button>
+          </div>
+          <div class="button-group pan-controls">
+            <span>Pan</span>
+            <button type="button" data-pan="left" aria-label="Pan left" disabled>←</button>
+            <button type="button" data-pan="up" aria-label="Pan up" disabled>↑</button>
+            <button type="button" data-pan="down" aria-label="Pan down" disabled>↓</button>
+            <button type="button" data-pan="right" aria-label="Pan right" disabled>→</button>
+          </div>
+          <output id="zoom-level" aria-label="Zoom level">100%</output>
+        </div>
+        <div class="map-viewport">
+          <svg id="map" xmlns="http://www.w3.org/2000/svg" tabindex="0" role="group" aria-labelledby="map-title" aria-describedby="map-help" preserveAspectRatio="xMidYMid meet">
+            <title id="map-title">South Side block groups</title>
+            <g id="block-groups"></g>
+          </svg>
+          <span class="north-marker" aria-hidden="true">↑ N</span>
+          <p id="map-message" class="map-message" role="status">Loading data.json…</p>
+        </div>
+        <p id="map-help" class="map-help">Click a block group to inspect it. Drag to pan; scroll or use + / − to zoom. Keyboard: Tab into the map, arrow keys to pan, Home to reset. Tab again to reach block groups; arrow keys move between them, Enter or Space selects.</p>
+      </section>
+
+      <aside class="details-panel" aria-label="Partition details">
+        <section class="selection" aria-labelledby="selection-heading">
+          <h2 id="selection-heading">Selected block group</h2>
+          <p id="selection-empty">Choose a block group on the map. A group label describes this partition only.</p>
+          <dl id="selection-details" hidden>
+            <div><dt>GEOID</dt><dd id="selected-geoid"></dd></div>
+            <div><dt>ACS release</dt><dd id="selected-year"></dd></div>
+            <div><dt>Algorithm</dt><dd id="selected-algorithm"></dd></div>
+            <div><dt>Group label</dt><dd id="selected-label"></dd></div>
+          </dl>
+          <p id="selection-announcement" class="visually-hidden" role="status" aria-live="polite"></p>
+        </section>
+        <section class="legend-section" aria-labelledby="legend-heading">
+          <h2 id="legend-heading">Groups in this partition</h2>
+          <p class="legend-note">Each number is a group ID, not a rank. Counts are block groups.</p>
+          <ul id="legend" class="legend"></ul>
+        </section>
+        <section class="method-note" aria-labelledby="method-heading">
+          <h2 id="method-heading">What the scores mean</h2>
+          <p id="objective-note">Louvain uses weighted edges; Leiden uses unweighted edges.</p>
+          <p>Their modularity scores measure different objectives and should not be ranked against each other. Graph edges connect similar demographics, not necessarily adjacent places.</p>
+          <p>I treated negative ACS estimate codes as missing before calculating rates, then median-imputed missing features. The map shows those corrected runs.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <footer>No map tiles or external libraries. Geometry and labels load from <a href="data.json">local data.json</a>. Census data describe groups of people, not individual records.</footer>
+</body>
+</html>
