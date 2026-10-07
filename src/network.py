@@ -6,7 +6,7 @@ import igraph as ig
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.spatial.distance import cdist
 from typing import Tuple, Dict, List
-from .config import KNN_K, WEAK_BOUNDARY_THRESHOLD
+from .config import KNN_K, WEAK_BOUNDARY_THRESHOLD, RANDOM_SEED
 
 class NetworkAnalyzer:
     
@@ -48,12 +48,12 @@ class NetworkAnalyzer:
 
     @staticmethod
     def detect_communities(G: nx.Graph) -> Tuple[Dict[int, int], Dict[int, int], float, float]:
-        louvain_coms = nx.community.louvain_communities(G, seed=42)
+        louvain_coms = nx.community.louvain_communities(G, seed=RANDOM_SEED)
         louvain_map = {node: cid for cid, nodes in enumerate(louvain_coms) for node in nodes}
         mod_louvain = nx.community.modularity(G, louvain_coms)
         
         h = ig.Graph.from_networkx(G)
-        leiden_part = leidenalg.find_partition(h, leidenalg.ModularityVertexPartition)
+        leiden_part = leidenalg.find_partition(h, leidenalg.ModularityVertexPartition, seed=RANDOM_SEED)
         leiden_map = {node: leiden_part.membership[i] for i, node in enumerate(G.nodes())}
         mod_leiden = leiden_part.modularity
         
