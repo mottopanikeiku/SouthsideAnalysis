@@ -1,0 +1,105 @@
+{
+  "comparison": "Same input rows, dependencies, feature settings and seeds; only missing-value handling changes.",
+  "seed": 42,
+  "knn_k": 8,
+  "pca_variance": 0.9,
+  "objectives": {
+    "louvain": "weighted modularity",
+    "leiden": "unweighted modularity"
+  },
+  "limitations": [
+    "Historical outputs used an unrecorded Leiden seed and dependencies; the controlled pre-fix run is not an exact reconstruction of those outputs.",
+    "Each modularity is evaluated on its own graph; a change is not proof of better neighborhoods.",
+    "ACS years are joined to 2023 TIGER boundaries by GEOID without a crosswalk.",
+    "Community identifiers and colors are arbitrary and not aligned between years or algorithms.",
+    "Zero denominators retain the original zero-rate convention to isolate the missing-code correction."
+  ],
+  "versions": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "networkx": "3.7",
+    "igraph": "1.0.0",
+    "leidenalg": "0.12.0",
+    "geopandas": "1.2.0"
+  },
+  "python_version": "3.13.15",
+  "input_sha256": {
+    "data/acs_2019_cook_blockgroups.csv": "7c08e45bb722abe278973e57492d7ffe03fb4c9f01c4d023202f648a68fdd7c2",
+    "data/acs_2022_cook_blockgroups.csv": "1239d535f64162e66846dbb94bcc3b7b79be68592734989698befb3c46f8d95b",
+    "data/tl_2023_17_bg/tl_2023_17_bg.shp": "f7bf3b3f8eb85b25545a896560041525fcc7fc2be9fe348ed362f10fd869495b",
+    "data/tl_2023_17_bg/tl_2023_17_bg.dbf": "eb33ccd398980caf88f2184477742b085186c28b6a7f6075476b77397d148332",
+    "data/tl_2023_17_bg/tl_2023_17_bg.shx": "ee3309919e067a2c234912c8479bd7fb7053d8a9aea44fd9bfaa532ce02b12ed",
+    "data/tl_2023_17_bg/tl_2023_17_bg.prj": "0b9041e921d9ebb43247d314608fe9e38a0b008ee793067fc1806199ea1fb9dd"
+  },
+  "years": {
+    "2019": {
+      "block_groups": 1106,
+      "negative_cells": 209,
+      "rows_with_negative_estimates": 181,
+      "negative_cells_by_column": {
+        "median_household_income": 82,
+        "median_housing_value": 125,
+        "median_age": 2
+      },
+      "negative_codes": [
+        -666666666.0
+      ],
+      "edges_before": 5809,
+      "edges_after": 5972,
+      "existing_missing_estimates_by_column": {},
+      "algorithms": {
+        "louvain": {
+          "communities_before": 14,
+          "communities_after": 11,
+          "modularity_before": 0.8322814956010185,
+          "modularity_after": 0.7461863218394822,
+          "adjusted_rand_index": 0.3031594839457359,
+          "normalized_mutual_information": 0.46597550109450336
+        },
+        "leiden": {
+          "communities_before": 14,
+          "communities_after": 11,
+          "modularity_before": 0.833938163102879,
+          "modularity_after": 0.754841554627108,
+          "adjusted_rand_index": 0.3183045615313877,
+          "normalized_mutual_information": 0.47912960853634556
+        }
+      }
+    },
+    "2022": {
+      "block_groups": 1135,
+      "negative_cells": 361,
+      "rows_with_negative_estimates": 313,
+      "negative_cells_by_column": {
+        "median_household_income": 187,
+        "median_housing_value": 171,
+        "median_age": 3
+      },
+      "negative_codes": [
+        -666666666.0
+      ],
+      "edges_before": 5876,
+      "edges_after": 6193,
+      "existing_missing_estimates_by_column": {},
+      "algorithms": {
+        "louvain": {
+          "communities_before": 13,
+          "communities_after": 12,
+          "modularity_before": 0.822580064986078,
+          "modularity_after": 0.7289178652706688,
+          "adjusted_rand_index": 0.20960816745763733,
+          "normalized_mutual_information": 0.373155894522403
+        },
+        "leiden": {
+          "communities_before": 14,
+          "communities_after": 11,
+          "modularity_before": 0.8232450968761715,
+          "modularity_after": 0.7337730501006575,
+          "adjusted_rand_index": 0.23907746156708803,
+          "normalized_mutual_information": 0.4024621938917268
+        }
+      }
+    }
+  }
+}

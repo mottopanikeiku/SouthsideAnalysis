@@ -1,47 +1,50 @@
 # SouthsideAnalysis
 
-SouthsideAnalysis is a small exploratory analysis of Census block-group demographics around Chicago's South Side using the published Louvain and Leiden community-detection algorithms.
+I group Census block groups around Chicago's South Side by demographic similarity using the published Louvain and Leiden algorithms.
 
-**Question:** Do demographic similarities produce useful groupings of block groups, and how do the two algorithms partition the same graph?
+**The correction changed the answer substantially.** After treating negative Census missing-value codes as missing estimates rather than numbers, before/after adjusted Rand indices range from **0.210 to 0.318**. Both algorithms' modularity scores fell. The old high scores were not evidence of better neighborhood boundaries. These numbers come from the [controlled comparison](results/before_after/comparison.json).
 
-[Feature engineering](src/features.py) derives demographic rates, imputes missing values, standardizes features, and applies PCA. [Network analysis](src/network.py) builds a cosine-similarity nearest-neighbor graph and finds communities; [main.py](main.py) joins the Census tables to geographic boundaries and writes maps and CSVs.
+**Question:** How much did missing-value handling distort these demographic partitions?
 
-**Result:** The saved runs produce partitions, not validated neighborhood boundaries. Their modularity scores are high, but input and algorithm limitations below prevent interpreting them as evidence of meaningful communities.
+I fixed [feature engineering](src/features.py), reran both years with the same inputs and seeds, and compared partitions in [this script](tools/compare_missing_values.py). The [interactive map](site/) lets me switch years and algorithms, inspect block groups, and zoom without a map service. This is exploratory clustering, not a map of validated neighborhoods.
 
-## Saved results
+## Corrected results
 
-| ACS release | Joined block groups | Louvain groups | Leiden groups | Louvain modularity | Leiden modularity |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| [2019](output/results_2019.csv) | 1,106 | 14 | 14 | 0.832 | 0.837 |
-| [2022](output/results_2022.csv) | 1,135 | 13 | 14 | 0.823 | 0.827 |
+I found the code `-666666666` in **209 estimates across 181 block groups in 2019**, and **361 estimates across 313 block groups in 2022**. All affected estimates were income, housing value or age; the committed extracts had no existing blank estimates in the selected columns. Negative values now become missing before rates, median imputation, standardization and PCA. Blank cells in the corrected CSVs remain blank; imputation is applied to the clustering matrix.
 
-Counts come from the linked CSV rows and unique community labels. Modularity values are the rounded labels in the saved [2019](output/map_comparison_2019.png) and [2022](output/map_comparison_2022.png) comparison maps. These are historical outputs: the original dependency versions and Leiden random seed were not recorded, so reruns need not reproduce the labels or scores exactly. The additional `*_advanced.csv` files and older `map_*.png` images are preserved, but their generating code is not available.
+| ACS release / algorithm | Groups before → after | Modularity before → after | Adjusted Rand index | NMI |
+| --- | ---: | ---: | ---: | ---: |
+| 2019 Louvain | 14 → 11 | 0.8323 → 0.7462 | 0.3032 | 0.4660 |
+| 2019 Leiden | 14 → 11 | 0.8339 → 0.7548 | 0.3183 | 0.4791 |
+| 2022 Louvain | 13 → 12 | 0.8226 → 0.7289 | 0.2096 | 0.3732 |
+| 2022 Leiden | 14 → 11 | 0.8232 → 0.7338 | 0.2391 | 0.4025 |
+
+Every table entry and missing-value count comes from [comparison.json](results/before_after/comparison.json). The corrected CSVs contain [1,106 block groups for 2019](output/results_2019.csv) and [1,135 for 2022](output/results_2022.csv). The [pre-fix partitions](results/before_after/) use the old missing-value behavior under the current locked dependencies, not guessed historical labels. I retained the original [outputs](output/historical/) unchanged.
+
+ARI and arithmetic-average normalized mutual information compare partitions of the same year's block groups without assuming that label numbers match. Louvain retains its weighted objective; Leiden retains the original unweighted objective. Each modularity is evaluated on that run's own graph, so neither a cross-algorithm comparison nor the decrease proves improved real-world communities. Both algorithms now use seed 42; the historical Leiden runs had no recorded seed.
 
 ## Reproduce
 
-Run from the repository root with [uv](https://docs.astral.sh/uv/). The committed tables and shapefile suffice; no API key, GPU, model download, or paid service is needed, and a laptop CPU is enough. No runtime benchmark is claimed.
+The committed ACS tables and TIGER boundaries suffice. I used a laptop CPU, one numerical-library thread, no GPU and **$0 paid compute**. No runtime benchmark is claimed. Dependency versions, Python version and input checksums are recorded in the comparison file.
 
 ```sh
 nice -n 19 uv sync --locked
 nice -n 19 uv run --locked python -m unittest discover -s tests -v
-nice -n 19 uv run --locked python main.py
+MPLBACKEND=Agg OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 nice -n 19 uv run --locked python -m tools.compare_missing_values
 ```
 
-The test runs both years in a temporary output directory. The final command overwrites the normal results and comparison/network images under `output/`; preserve historical files before running it if needed. Optional official Chicago community-area outlines are not bundled. `download_shp.py` downloads them to the path the loader recognizes; outlines are only a plotting overlay.
+The last command regenerates corrected CSVs and figures in `output/`, the before/after comparison in `results/`, and simplified projected map paths in `site/data.json`. `main.py` runs just the corrected pipeline. To view the map locally, serve `site/` with `python -m http.server --directory site 8000` and open `http://localhost:8000`. The Pages workflow publishes the static directory when GitHub Pages is enabled for Actions; it does not change repository settings.
 
 ## Limitations
 
-- Census negative missing-value codes remain numeric inputs; the saved [2022 CSV](output/results_2022.csv) contains them. Median imputation therefore does not handle all missing estimates, and the partitions may be distorted.
-- The [loader](src/data_loader.py) joins older ACS releases to the committed newer TIGER boundaries by identifier without a geographic crosswalk; comparisons across years are not a controlled longitudinal analysis.
-- The [configured bounding box](src/config.py) is an approximation, not an official South Side boundary. Graph edges represent demographic similarity, not geographic adjacency.
-- Louvain uses edge weights, while the current Leiden call does not pass them. Their modularity scores therefore refer to different objectives; Leiden is also unseeded.
-- There is no neighborhood validation, uncertainty analysis, or acquisition script for the committed ACS extracts. The unused additional ACS table is not part of the pipeline.
+- Older ACS releases are joined to 2023 TIGER boundaries by GEOID without a geographic crosswalk. This is not a controlled longitudinal comparison.
+- The bounding box approximates the South Side. Graph edges connect demographic similarities, not adjacent locations; separated areas can share a label.
+- Median imputation ignores uncertainty and missingness patterns. I retain the original zero-denominator rate convention to isolate the missing-code correction.
+- Community IDs and colors are arbitrary and not aligned across years or algorithms. Map geometry is simplified for display, not for analysis.
+- I have not validated these partitions against neighborhoods or rerun many random seeds. The committed ACS extraction logs and original dependency versions are unavailable.
 
 ## Prior work and data
 
-- [Louvain: Blondel et al.](https://arxiv.org/abs/0803.0476) and [Leiden: Traag et al.](https://doi.org/10.1038/s41598-019-41695-z), called through NetworkX and leidenalg/igraph rather than implemented here.
-- [American Community Survey five-year estimates](https://www.census.gov/data/developers/data-sets/acs-5year.html): the committed CSVs contain aggregate geographic labels and demographic estimates, not individual records. Original extraction logs are absent; source attribution does not establish an independently verified copy of every value.
-- [Census TIGER/Line boundaries](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html), with the original [Census metadata](data/tl_2023_17_bg/tl_2023_17_bg.shp.iso.xml) retained.
-- [Chicago community-area boundaries](https://data.cityofchicago.org/Community-Economic-Development/Boundaries-Community-Areas-current-/cauq-8yn6), optionally downloaded by the helper.
+I call [Louvain (Blondel et al.)](https://arxiv.org/abs/0803.0476) through NetworkX and [Leiden (Traag et al.)](https://doi.org/10.1038/s41598-019-41695-z) through leidenalg/igraph. The data are aggregate [ACS five-year estimates](https://www.census.gov/data/developers/data-sets/acs-5year.html) and [TIGER/Line boundaries](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html), not individual records. Optional [Chicago community-area outlines](https://data.cityofchicago.org/Community-Economic-Development/Boundaries-Community-Areas-current-/cauq-8yn6) can be downloaded with `download_shp.py`; they are only a plotting overlay.
 
 Written with AI coding assistance.
