@@ -38,7 +38,13 @@ class NetworkAnalyzer:
             G.add_node(i, dataframe_index=df_indices[i])
             
         for i in range(len(X)):
-            neighbors = np.argsort(sim_matrix[i])[-KNN_K-1:-1]
+            # Exclude the node itself by index. Identical feature rows, such as
+            # zero-population block groups, tie with self-similarity, so
+            # dropping the largest similarity could drop a real neighbor and
+            # keep a self-loop instead.
+            candidates = sim_matrix[i].copy()
+            candidates[i] = -np.inf
+            neighbors = np.argsort(candidates)[-KNN_K:]
             for j in neighbors:
                 weight = sim_matrix[i][j]
                 if weight > 0:
