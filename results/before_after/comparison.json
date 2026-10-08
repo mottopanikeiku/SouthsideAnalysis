@@ -23,7 +23,8 @@
     "leidenalg": "0.12.0",
     "geopandas": "1.2.0"
   },
-  "python_version": "3.13.15",
+  "python_version": "3.14.7",
+  "platform": "Linux aarch64",
   "input_sha256": {
     "data/acs_2019_cook_blockgroups.csv": "7c08e45bb722abe278973e57492d7ffe03fb4c9f01c4d023202f648a68fdd7c2",
     "data/acs_2022_cook_blockgroups.csv": "1239d535f64162e66846dbb94bcc3b7b79be68592734989698befb3c46f8d95b",
@@ -45,25 +46,25 @@
       "negative_codes": [
         -666666666.0
       ],
-      "edges_before": 5809,
-      "edges_after": 5972,
+      "edges_before": 5808,
+      "edges_after": 5971,
       "existing_missing_estimates_by_column": {},
       "algorithms": {
         "louvain": {
           "communities_before": 14,
           "communities_after": 11,
-          "modularity_before": 0.8322814956010185,
-          "modularity_after": 0.7461863218394822,
+          "modularity_before": 0.8322446764425284,
+          "modularity_after": 0.7461728735882852,
           "adjusted_rand_index": 0.3031594839457359,
           "normalized_mutual_information": 0.46597550109450336
         },
         "leiden": {
           "communities_before": 14,
           "communities_after": 11,
-          "modularity_before": 0.833938163102879,
-          "modularity_after": 0.754841554627108,
-          "adjusted_rand_index": 0.3183045615313877,
-          "normalized_mutual_information": 0.47912960853634556
+          "modularity_before": 0.8338035424445431,
+          "modularity_after": 0.7548412200867803,
+          "adjusted_rand_index": 0.31497334175488717,
+          "normalized_mutual_information": 0.4747496604383987
         }
       }
     },
@@ -79,25 +80,25 @@
       "negative_codes": [
         -666666666.0
       ],
-      "edges_before": 5876,
-      "edges_after": 6193,
+      "edges_before": 5874,
+      "edges_after": 6191,
       "existing_missing_estimates_by_column": {},
       "algorithms": {
         "louvain": {
           "communities_before": 13,
-          "communities_after": 12,
-          "modularity_before": 0.822580064986078,
-          "modularity_after": 0.7289178652706688,
-          "adjusted_rand_index": 0.20960816745763733,
-          "normalized_mutual_information": 0.373155894522403
+          "communities_after": 11,
+          "modularity_before": 0.8215818742498836,
+          "modularity_after": 0.7284606866052928,
+          "adjusted_rand_index": 0.21104874252860253,
+          "normalized_mutual_information": 0.3582600718433888
         },
         "leiden": {
           "communities_before": 14,
-          "communities_after": 11,
-          "modularity_before": 0.8232450968761715,
-          "modularity_after": 0.7337730501006575,
-          "adjusted_rand_index": 0.23907746156708803,
-          "normalized_mutual_information": 0.4024621938917268
+          "communities_after": 10,
+          "modularity_before": 0.8255138205342495,
+          "modularity_after": 0.7347132410491302,
+          "adjusted_rand_index": 0.20665010498844727,
+          "normalized_mutual_information": 0.3876568306134327
         }
       }
     }

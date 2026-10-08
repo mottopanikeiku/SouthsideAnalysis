@@ -3,9 +3,8 @@ from shapely.geometry import box
 
 DATA_DIR = "data"
 OUTPUT_DIR = "output"
-LOGS_DIR = "logs"
 
-for d in [DATA_DIR, OUTPUT_DIR, LOGS_DIR]:
+for d in [DATA_DIR, OUTPUT_DIR]:
     os.makedirs(d, exist_ok=True)
 
 SOUTH_SIDE_BBOX = box(-87.75, 41.644, -87.52, 41.867)

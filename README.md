@@ -2,7 +2,7 @@
 
 I group Census block groups around Chicago's South Side by demographic similarity using the published Louvain and Leiden algorithms.
 
-**The correction changed the answer substantially.** After treating negative Census missing-value codes as missing estimates rather than numbers, before/after adjusted Rand indices range from **0.210 to 0.318**. Both algorithms' modularity scores fell. The old high scores were not evidence of better neighborhood boundaries. These numbers come from the [controlled comparison](results/before_after/comparison.json).
+**The correction changed the answer substantially.** After treating negative Census missing-value codes as missing estimates rather than numbers, before/after adjusted Rand indices range from **0.207 to 0.315**. Both algorithms' modularity scores fell. The old high scores were not evidence of better neighborhood boundaries. These numbers come from the [controlled comparison](results/before_after/comparison.json).
 
 **Question:** How much did missing-value handling distort these demographic partitions?
 
@@ -14,10 +14,10 @@ I found the code `-666666666` in **209 estimates across 181 block groups in 2019
 
 | ACS release / algorithm | Groups before → after | Modularity before → after | Adjusted Rand index | NMI |
 | --- | ---: | ---: | ---: | ---: |
-| 2019 Louvain | 14 → 11 | 0.8323 → 0.7462 | 0.3032 | 0.4660 |
-| 2019 Leiden | 14 → 11 | 0.8339 → 0.7548 | 0.3183 | 0.4791 |
-| 2022 Louvain | 13 → 12 | 0.8226 → 0.7289 | 0.2096 | 0.3732 |
-| 2022 Leiden | 14 → 11 | 0.8232 → 0.7338 | 0.2391 | 0.4025 |
+| 2019 Louvain | 14 → 11 | 0.8322 → 0.7462 | 0.3032 | 0.4660 |
+| 2019 Leiden | 14 → 11 | 0.8338 → 0.7548 | 0.3150 | 0.4747 |
+| 2022 Louvain | 13 → 11 | 0.8216 → 0.7285 | 0.2110 | 0.3583 |
+| 2022 Leiden | 14 → 10 | 0.8255 → 0.7347 | 0.2067 | 0.3877 |
 
 Every table entry and missing-value count comes from [comparison.json](results/before_after/comparison.json). The corrected CSVs contain [1,106 block groups for 2019](output/results_2019.csv) and [1,135 for 2022](output/results_2022.csv). The [pre-fix partitions](results/before_after/) use the old missing-value behavior under the current locked dependencies, not guessed historical labels. I retained the original [outputs](output/historical/) unchanged.
 
@@ -25,7 +25,7 @@ ARI and arithmetic-average normalized mutual information compare partitions of t
 
 ## Reproduce
 
-The committed ACS tables and TIGER boundaries suffice. I used a laptop CPU, one numerical-library thread, no GPU and **$0 paid compute**. No runtime benchmark is claimed. Dependency versions, Python version and input checksums are recorded in the comparison file.
+The committed ACS tables and TIGER boundaries suffice. The committed results were generated on a Linux aarch64 CPU with one numerical-library thread, no GPU and **$0 paid compute**. No runtime benchmark is claimed. Dependency versions, Python version, platform and input checksums are recorded in the comparison file.
 
 ```sh
 nice -n 19 uv sync --locked
@@ -42,6 +42,7 @@ The last command regenerates corrected CSVs and figures in `output/`, the before
 - Median imputation ignores uncertainty and missingness patterns. I retain the original zero-denominator rate convention to isolate the missing-code correction.
 - Community IDs and colors are arbitrary and not aligned across years or algorithms. Map geometry is simplified for display, not for analysis.
 - I have not validated these partitions against neighborhoods or rerun many random seeds. The committed ACS extraction logs and original dependency versions are unavailable.
+- Louvain reacts to last-digit floating-point differences in edge weights. Multiplying the corrected 2022 PCA features by random factors within about 10⁻¹² of 1 kept every graph edge but changed that Louvain partition (ARI 0.87 against the unperturbed run) in two of three tries. Another machine with the same locked packages can therefore report different 2022 numbers.
 
 ## Prior work and data
 

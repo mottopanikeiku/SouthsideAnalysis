@@ -4,41 +4,27 @@ import networkx as nx
 import leidenalg
 import igraph as ig
 from sklearn.metrics.pairwise import cosine_similarity
-from scipy.spatial.distance import cdist
 from typing import Tuple, Dict, List
 from .config import KNN_K, WEAK_BOUNDARY_THRESHOLD, RANDOM_SEED
 
 class NetworkAnalyzer:
     
     @staticmethod
-    def compute_mahalanobis_similarity(X: np.ndarray) -> np.ndarray:
-        try:
-            cov = np.cov(X.T)
-            inv_cov = np.linalg.pinv(cov)
-            dist = cdist(X, X, metric='mahalanobis', VI=inv_cov)
-            return 1 / (1 + dist)
-        except Exception as e:
-            print(f"Warning: Mahalanobis calculation failed ({e}). Defaulting to Cosine.")
-            return cosine_similarity(X)
-
-    @staticmethod
-    def build_graph(X: np.ndarray, df_indices: pd.Index, metric: str = 'cosine') -> Tuple[nx.Graph, np.ndarray]:
-        if metric == 'cosine':
-            sim_matrix = cosine_similarity(X)
-        elif metric == 'mahalanobis':
-            sim_matrix = NetworkAnalyzer.compute_mahalanobis_similarity(X)
-        elif metric == 'euclidean':
-            dist = cdist(X, X, metric='euclidean')
-            sim_matrix = 1 / (1 + dist)
-        else:
-            raise ValueError(f"Unknown metric: {metric}")
+    def build_graph(X: np.ndarray, df_indices: pd.Index) -> Tuple[nx.Graph, np.ndarray]:
+        sim_matrix = cosine_similarity(X)
         
         G = nx.Graph()
         for i in range(len(X)):
             G.add_node(i, dataframe_index=df_indices[i])
             
         for i in range(len(X)):
-            neighbors = np.argsort(sim_matrix[i])[-KNN_K-1:-1]
+            # Exclude the node itself by index. Identical feature rows, such as
+            # zero-population block groups, tie with self-similarity, so
+            # dropping the largest similarity could drop a real neighbor and
+            # keep a self-loop instead.
+            candidates = sim_matrix[i].copy()
+            candidates[i] = -np.inf
+            neighbors = np.argsort(candidates)[-KNN_K:]
             for j in neighbors:
                 weight = sim_matrix[i][j]
                 if weight > 0:

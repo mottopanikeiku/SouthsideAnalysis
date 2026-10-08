@@ -68,6 +68,9 @@ def main():
         ],
         'versions': {package: version(package) for package in ['numpy', 'pandas', 'scikit-learn', 'networkx', 'igraph', 'leidenalg', 'geopandas']},
         'python_version': platform.python_version(),
+        # Louvain is sensitive to last-digit differences in edge weights, so
+        # partitions can differ between machines with the same locked packages.
+        'platform': f'{platform.system()} {platform.machine()}',
         'input_sha256': {
             str(path): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in [
