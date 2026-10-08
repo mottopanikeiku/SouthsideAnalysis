@@ -24,7 +24,7 @@ def run_pipeline(year: int):
     X_pca, valid_features = FeatureEngineer.prepare_features(gdf)
     
     print("Constructing Network Graph...")
-    G, _ = NetworkAnalyzer.build_graph(X_pca, gdf.index, metric='cosine')
+    G, _ = NetworkAnalyzer.build_graph(X_pca, gdf.index)
     
     print("Detecting Communities...")
     louvain_map, leiden_map, mod_louvain, mod_leiden = NetworkAnalyzer.detect_communities(G)

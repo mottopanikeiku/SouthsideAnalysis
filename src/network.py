@@ -4,34 +4,14 @@ import networkx as nx
 import leidenalg
 import igraph as ig
 from sklearn.metrics.pairwise import cosine_similarity
-from scipy.spatial.distance import cdist
 from typing import Tuple, Dict, List
 from .config import KNN_K, WEAK_BOUNDARY_THRESHOLD, RANDOM_SEED
 
 class NetworkAnalyzer:
     
     @staticmethod
-    def compute_mahalanobis_similarity(X: np.ndarray) -> np.ndarray:
-        try:
-            cov = np.cov(X.T)
-            inv_cov = np.linalg.pinv(cov)
-            dist = cdist(X, X, metric='mahalanobis', VI=inv_cov)
-            return 1 / (1 + dist)
-        except Exception as e:
-            print(f"Warning: Mahalanobis calculation failed ({e}). Defaulting to Cosine.")
-            return cosine_similarity(X)
-
-    @staticmethod
-    def build_graph(X: np.ndarray, df_indices: pd.Index, metric: str = 'cosine') -> Tuple[nx.Graph, np.ndarray]:
-        if metric == 'cosine':
-            sim_matrix = cosine_similarity(X)
-        elif metric == 'mahalanobis':
-            sim_matrix = NetworkAnalyzer.compute_mahalanobis_similarity(X)
-        elif metric == 'euclidean':
-            dist = cdist(X, X, metric='euclidean')
-            sim_matrix = 1 / (1 + dist)
-        else:
-            raise ValueError(f"Unknown metric: {metric}")
+    def build_graph(X: np.ndarray, df_indices: pd.Index) -> Tuple[nx.Graph, np.ndarray]:
+        sim_matrix = cosine_similarity(X)
         
         G = nx.Graph()
         for i in range(len(X)):
